@@ -1,0 +1,114 @@
+[
+  {
+    "id": "U1",
+    "username": "Abdelsal",
+    "displayName": "Abdelsal",
+    "role": "admin",
+    "password": "maintenance2026**",
+    "active": true
+  },
+  {
+    "id": "U2",
+    "username": "marwen",
+    "displayName": "Marwen",
+    "role": "technician",
+    "password": "maintenance2026**",
+    "active": true
+  },
+  {
+    "id": "U3",
+    "username": "sami",
+    "displayName": "Sami",
+    "role": "technician",
+    "password": "maintenance2026**",
+    "active": true
+  },
+  {
+    "id": "U4",
+    "username": "saif",
+    "displayName": "Saif",
+    "role": "technician",
+    "password": "maintenance2026**",
+    "active": true
+  },
+  {
+    "id": "U5",
+    "username": "nabil",
+    "displayName": "Nabil",
+    "role": "technician",
+    "password": "maintenance2026**",
+    "active": true
+  },
+  {
+    "id": "U6",
+    "username": "hichem",
+    "displayName": "Hichem",
+    "role": "technician",
+    "password": "maintenance2026**",
+    "active": true
+  },
+  {
+    "id": "U7",
+    "username": "bechir",
+    "displayName": "Bechir",
+    "role": "technician",
+    "password": "maintenance2026**",
+    "active": true
+  },
+  {
+    "id": "U8",
+    "username": "houssine",
+    "displayName": "Houssine",
+    "role": "technician",
+    "password": "maintenance2026**",
+    "active": true
+  },
+  {
+    "id": "U9",
+    "username": "monji",
+    "displayName": "Monji",
+    "role": "technician",
+    "password": "maintenance2026**",
+    "active": true
+  },
+  {
+    "id": "U10",
+    "username": "hafedh",
+    "displayName": "Hafedh",
+    "role": "technician",
+    "password": "maintenance2026**",
+    "active": true
+  },
+  {
+    "id": "U11",
+    "username": "arbi",
+    "displayName": "Arbi",
+    "role": "technician",
+    "password": "maintenance2026**",
+    "active": true
+  },
+  {
+    "id": "U12",
+    "username": "lamjed",
+    "displayName": "Lamjed",
+    "role": "technician",
+    "password": "maintenance2026**",
+    "active": true
+  },
+  {
+    "id": "U13",
+    "username": "medamine",
+    "displayName": "Medamine",
+    "role": "technician",
+    "password": "maintenance2026**",
+    "active": true
+  },
+  {
+    "id": "U14",
+    "username": "manager",
+    "displayName": "Maintenance Manager",
+    "role": "manager",
+    "password": "maintenance2026**",
+    "active": true
+  }
+]

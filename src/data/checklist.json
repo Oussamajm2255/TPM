@@ -1,0 +1,140 @@
+{
+  "title": "Check List audit TPM machine à coudre 1&2",
+  "header_fields": [
+    {
+      "key": "date",
+      "label": "Date",
+      "type": "date",
+      "required": true
+    },
+    {
+      "key": "uap",
+      "label": "UAP",
+      "type": "select-project",
+      "required": true
+    },
+    {
+      "key": "ligne",
+      "label": "Ligne",
+      "type": "select-line",
+      "required": true
+    },
+    {
+      "key": "machine",
+      "label": "N° Machine",
+      "type": "select-machine",
+      "required": true
+    },
+    {
+      "key": "auditeur",
+      "label": "Auditeur",
+      "type": "text",
+      "required": true
+    },
+    {
+      "key": "superviseur",
+      "label": "Superviseur",
+      "type": "text"
+    },
+    {
+      "key": "gapLeader",
+      "label": "Gap Leader",
+      "type": "text"
+    }
+  ],
+  "items": [
+    {
+      "id": "Q1",
+      "label": "Check List affiché sur le tableau de GAP et renseigné",
+      "type": "yes-no",
+      "weight": 1
+    },
+    {
+      "id": "Q2",
+      "label": "Outillage de travail existant (Burettes d'huile, Pinceau, Tournevis des aiguilles,…)",
+      "type": "yes-no",
+      "weight": 1
+    },
+    {
+      "id": "Q3",
+      "label": "Bloc crochet machine est nettoyé",
+      "type": "yes-no",
+      "weight": 1
+    },
+    {
+      "id": "Q4",
+      "label": "Système de sécurité fonctionnelle (présence cache aiguille , protège doigt , stop canette)",
+      "type": "yes-no",
+      "weight": 1
+    },
+    {
+      "id": "Q5",
+      "label": "Le bloc crochet et le système coupe sont lubrifié",
+      "type": "yes-no",
+      "weight": 1
+    },
+    {
+      "id": "Q6",
+      "label": "Fréquence de changement d'aiguilles respectée",
+      "type": "yes-no",
+      "weight": 1
+    },
+    {
+      "id": "Q7",
+      "label": "Enfilage fil dans le bloc tension est correcte",
+      "type": "yes-no",
+      "weight": 1
+    },
+    {
+      "id": "Q8",
+      "label": "Enfilage fil a travers les tuyaux d'enfilage est respecté",
+      "type": "yes-no",
+      "weight": 1
+    },
+    {
+      "id": "Q9",
+      "label": "Version du logiciel sur les machines Vetron 1.34",
+      "type": "yes-no",
+      "weight": 1
+    },
+    {
+      "id": "Q10",
+      "label": "Support bobine bien fixé et en bonne état",
+      "type": "yes-no",
+      "weight": 1
+    },
+    {
+      "id": "Q11",
+      "label": "5S machine ( Bac rouge , tablette , Luminaire , passe de pièce ) sont OK",
+      "type": "yes-no",
+      "weight": 1
+    }
+  ],
+  "action_fields": [
+    {
+      "key": "problem",
+      "label": "Problème"
+    },
+    {
+      "key": "action",
+      "label": "Action(s)"
+    },
+    {
+      "key": "resp",
+      "label": "Responsable"
+    },
+    {
+      "key": "deadline",
+      "label": "Deadline",
+      "type": "date"
+    },
+    {
+      "key": "act",
+      "label": "Statut"
+    },
+    {
+      "key": "commentaires",
+      "label": "Commentaires"
+    }
+  ]
+}
