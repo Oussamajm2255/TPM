@@ -147,6 +147,7 @@ app.get('/api/planning', async (req, res) => {
     const { rows } = await pool.query('SELECT * FROM planning ORDER BY date, id');
     res.json(rows.map(p => ({
       ...p,
+      date: p.date instanceof Date ? p.date.toISOString().slice(0, 10) : String(p.date).slice(0, 10),
       technicianId: p.technician_id,
       projectId: p.project_id,
       lineId: p.line_id,
@@ -197,6 +198,7 @@ app.get('/api/audits', async (req, res) => {
     const { rows } = await pool.query('SELECT * FROM audits ORDER BY created_at DESC');
     res.json(rows.map(a => ({
       ...a,
+      date: a.date instanceof Date ? a.date.toISOString().slice(0, 10) : String(a.date || '').slice(0, 10),
       projectId: a.project_id, projectName: a.project_name,
       lineId: a.line_id, lineName: a.line_name,
       machineIssues: a.machine_issues, technicianId: a.technician_id, planId: a.plan_id,
