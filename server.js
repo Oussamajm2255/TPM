@@ -11,10 +11,13 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 
-// PostgreSQL pool
+// PostgreSQL pool — try public URL first if internal fails
+const connectionString = process.env.DATABASE_PUBLIC_URL || process.env.DATABASE_URL;
+console.log('DB connection:', connectionString ? 'configured' : 'MISSING');
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.DATABASE_URL?.includes('railway') ? { rejectUnauthorized: false } : false,
+  connectionString,
+  ssl: { rejectUnauthorized: false },
 });
 
 // Static files (built React app)
