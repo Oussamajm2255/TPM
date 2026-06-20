@@ -96,14 +96,6 @@
     "active": true
   },
   {
-    "id": "U13",
-    "username": "medamine",
-    "displayName": "Medamine",
-    "role": "technician",
-    "password": "maintenance2026**",
-    "active": true
-  },
-  {
     "id": "U14",
     "username": "manager",
     "displayName": "Maintenance Manager",

@@ -12,7 +12,8 @@ export default function CalendarDay({ dateISO, entries, projects, users, onPick 
 
   return (
     <div className="card overflow-hidden">
-      <table className="w-full">
+      <div className="overflow-x-auto">
+      <table className="w-full min-w-[640px]">
         <thead className="bg-slate-50">
           <tr>
             <th className="th">Technicien</th><th className="th">Projet</th><th className="th">Ligne</th>
@@ -64,6 +65,7 @@ export default function CalendarDay({ dateISO, entries, projects, users, onPick 
           })}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }

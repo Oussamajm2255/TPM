@@ -29,6 +29,9 @@ export const planningService = {
     });
     // Preserve previously-inserted unplanned audits unless hardWipe requested
     const prev = await dataClient.get('planning');
+    if (hardWipe) {
+      await dataClient.clear('planning');
+    }
     const unplanned = hardWipe ? [] : prev.filter((p) => p.unplanned);
 
     let workingDates = listYearDays(settings.planningYear)
@@ -70,11 +73,7 @@ export const planningService = {
     return dataClient.patch('planning', (prev) => prev.filter((p) => p.id !== id));
   },
 
-  async stats() {
-    const [entries, technicians] = await Promise.all([
-      dataClient.get('planning'),
-      userService.technicians(),
-    ]);
-    return planningStats(entries, technicians);
+  async clearAll() {
+    return dataClient.clear('planning');
   },
 };

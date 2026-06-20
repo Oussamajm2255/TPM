@@ -47,11 +47,6 @@ export default function LoginPage() {
             {loading ? 'Connexion…' : 'Se connecter'}
           </button>
         </form>
-        <div className="mt-6 text-xs text-slate-500 leading-relaxed">
-          <div className="font-medium text-slate-600 mb-1">Comptes de démo :</div>
-          admin: <code>Abdelsal</code> · manager: <code>manager</code> · technicien: <code>marwen</code>
-          <br />Mot de passe : <code>maintenance2026**</code>
-        </div>
       </div>
     </div>
   );

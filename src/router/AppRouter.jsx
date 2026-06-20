@@ -31,7 +31,7 @@ export default function AppRouter() {
           </Guard>
         }
       >
-        <Route index element={<DashboardPage />} />
+        <Route index element={user?.role === 'technician' ? <Navigate to="/tasks" replace /> : <DashboardPage />} />
         <Route path="tasks" element={<Guard action="tasks.view"><TasksPage /></Guard>} />
         <Route path="projects" element={<Guard action="projects.view"><ProjectsPage /></Guard>} />
         <Route path="audits" element={<Guard action="audits.view"><AuditsPage /></Guard>} />

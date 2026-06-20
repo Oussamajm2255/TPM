@@ -2,8 +2,8 @@ import { useAppStore } from '../store/useAppStore';
 
 // Central permission map — keeps components free from role branching.
 const MATRIX = {
-  'dashboard.view':          ['admin', 'manager', 'technician'],
-  'projects.view':           ['admin', 'manager', 'technician'],
+  'dashboard.view':          ['admin', 'manager'],
+  'projects.view':           ['admin', 'manager'],
   'projects.manage':         ['admin'],
   'tasks.view':              ['admin', 'manager', 'technician'],
   'audits.view':             ['admin', 'manager', 'technician'],
@@ -15,6 +15,8 @@ const MATRIX = {
   'planning.edit':           ['admin', 'manager'],
   'users.view':              ['admin'],
   'users.manage':            ['admin'],
+  'actions.view':            ['admin', 'manager', 'technician'],
+  'actions.update':          ['admin', 'manager', 'technician'],
 };
 
 export function usePermissions() {

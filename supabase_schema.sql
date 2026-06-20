@@ -62,11 +62,16 @@ CREATE TABLE audits (
     plan_id TEXT REFERENCES planning(id) ON DELETE SET NULL,
     date DATE NOT NULL,
     auditor_id TEXT REFERENCES users(id),
-    project_id TEXT REFERENCES projects(id),
-    line_id TEXT REFERENCES lines(id),
-    machine_id TEXT,
-    supervisor TEXT,
+    auditeur TEXT,
+    superviseur TEXT,
     gap_leader TEXT,
+    project_id TEXT REFERENCES projects(id),
+    project_name TEXT,
+    line_id TEXT REFERENCES lines(id),
+    line_name TEXT,
+    machine_issues JSONB,
+    answers JSONB,
+    actions JSONB,
     score INTEGER DEFAULT 0,
     status TEXT DEFAULT 'draft',
     created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -86,3 +91,10 @@ CREATE TABLE audit_answers (
     deadline DATE,
     status TEXT
 );
+
+-- 7. Settings
+CREATE TABLE settings (
+    key TEXT PRIMARY KEY,
+    value JSONB NOT NULL
+);
+

@@ -23,11 +23,11 @@ export default function CalendarMonth({ year, month, entries, onSelectDay }) {
   }, [entries]);
 
   return (
-    <div>
-      <div className="grid grid-cols-7 text-xs font-semibold text-slate-500 mb-1">
+    <div className="overflow-x-auto">
+      <div className="grid grid-cols-7 text-xs font-semibold text-slate-500 mb-1 min-w-[680px]">
         {DOW_FR_SHORT.map((d) => <div key={d} className="px-2 py-1">{d}</div>)}
       </div>
-      <div className="grid grid-cols-7 gap-1">
+      <div className="grid grid-cols-7 gap-1 min-w-[680px]">
         {cells.map((d, i) => {
           if (!d) return <div key={i} className="min-h-[86px] rounded-md bg-slate-50/40" />;
           const iso = toISO(d);

@@ -15,19 +15,18 @@ export default function PlanningPage() {
   const { projects, users, planning, settings, currentUser } = useAppStore((s) => ({
     projects: s.projects, users: s.users, planning: s.planning, settings: s.settings, currentUser: s.currentUser,
   }));
-  const regenerate = useAppStore((s) => s.regeneratePlanning);
   const addUnplanned = useAppStore((s) => s.addUnplanned);
   const removePlanEntry = useAppStore((s) => s.removePlanEntry);
   const { can } = usePermissions();
   const navigate = useNavigate();
 
   const year = settings?.planningYear || 2026;
-  const [view, setView] = useState('Mois');
-  const [cursor, setCursor] = useState(new Date(year, 0, 1));
+  const isTech = currentUser?.role === 'technician';
+  const [view, setView] = useState(isTech ? 'Semaine' : 'Mois');
+  const [cursor, setCursor] = useState(isTech ? new Date() : new Date(year, 0, 1));
   const [showUnplanned, setShowUnplanned] = useState(false);
   const [filterTech, setFilterTech] = useState('');
   const [filterProject, setFilterProject] = useState('');
-  const [regenBusy, setRegenBusy] = useState(false);
 
   const techs = users.filter((u) => u.role === 'technician');
 
@@ -49,71 +48,63 @@ export default function PlanningPage() {
     }));
   }, [scopedEntries, users, projects]);
 
-  const regen = async () => {
-    if (!confirm('Voulez-vous vraiment écraser tout le planning actuel pour reconstruire une distribution propre (1 audit/jour) ? Cette action est irréversible.')) return;
-    setRegenBusy(true);
-    try { await regenerate(true); } finally { setRegenBusy(false); }
-  };
-
-
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="card-industrial p-3 sm:p-4 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          {VIEWS.map((v) => (
+          {!isTech && VIEWS.map((v) => (
             <button key={v}
-              className={`btn-secondary ${view === v ? '!bg-brand-600 !text-white !border-brand-600' : ''}`}
+              className={`btn-secondary ${view === v ? '!bg-[#eef0ff] !text-[#1f20c3] !border-[#5759e0]' : ''}`}
               onClick={() => setView(v)}>{v}</button>
           ))}
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <select className="input !w-auto" value={filterProject} onChange={(e) => setFilterProject(e.target.value)}>
-            <option value="">Tous projets</option>
-            {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-          </select>
-          {currentUser?.role !== 'technician' && (
-            <select className="input !w-auto" value={filterTech} onChange={(e) => setFilterTech(e.target.value)}>
-              <option value="">Tous techniciens</option>
-              {techs.map((t) => <option key={t.id} value={t.id}>{t.displayName}</option>)}
-            </select>
-          )}
-          {can('planning.unplanned') && (
-            <button className="btn-secondary" onClick={() => setShowUnplanned(true)}>+ Audit non planifié</button>
-          )}
-          {can('planning.generate') && (
-            <button className="btn-primary" onClick={regen} disabled={regenBusy}>
-              {regenBusy ? 'Génération…' : (planning.length ? 'Régénérer planning' : 'Générer planning 2026')}
-            </button>
+          {currentUser?.role !== 'technician' ? (
+            <>
+              <select className="input !w-full sm:!w-auto" value={filterProject} onChange={(e) => setFilterProject(e.target.value)}>
+                <option value="">Tous projets</option>
+                {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+              </select>
+              <select className="input !w-full sm:!w-auto" value={filterTech} onChange={(e) => setFilterTech(e.target.value)}>
+                <option value="">Tous techniciens</option>
+                {techs.map((t) => <option key={t.id} value={t.id}>{t.displayName}</option>)}
+              </select>
+              {can('planning.unplanned') && (
+                <button className="btn-secondary" onClick={() => setShowUnplanned(true)}>+ Audit non planifié</button>
+              )}
+            </>
+          ) : (
+            <div className="bg-[#eef0ff] text-indigo-700 px-4 py-2 rounded-[8px] text-sm font-semibold border border-[#4b4cd9]/40">
+              Mon planning d'audits
+            </div>
           )}
         </div>
       </div>
 
-      {planning.length === 0 && (
-        <div className="card p-5 bg-brand-50 border-brand-100 text-sm text-brand-900">
-          Aucun planning n'est encore généré.
-          {can('planning.generate') && <> Cliquez sur <b>« Générer planning 2026 »</b> pour démarrer.</>}
-        </div>
-      )}
 
-      <div className="card p-4">
+      <div className="card-industrial p-4">
         <NavBar view={view} cursor={cursor} setCursor={setCursor} year={year} />
 
         {view === 'Mois' && (
-          <CalendarMonth
-            year={cursor.getFullYear()}
-            month={cursor.getMonth()}
-            entries={displayEntries}
-            onSelectDay={(iso) => { setCursor(fromISO(iso)); setView('Jour'); }}
-          />
+          <div className="overflow-x-auto">
+            <CalendarMonth
+              year={cursor.getFullYear()}
+              month={cursor.getMonth()}
+              entries={displayEntries}
+              onSelectDay={(iso) => { setCursor(fromISO(iso)); setView('Jour'); }}
+            />
+          </div>
         )}
         {view === 'Semaine' && (
-          <CalendarWeek
-            weekStart={startOfWeek(cursor)}
-            entries={displayEntries}
-            projects={projects}
-            users={users}
-            onPick={(e) => navigate(`/audits/new?planId=${e.id}&projectId=${e.projectId}&lineId=${e.lineId}&date=${e.date}`)}
-          />
+          <div className="overflow-x-auto">
+            <CalendarWeek
+              weekStart={startOfWeek(cursor)}
+              entries={displayEntries}
+              projects={projects}
+              users={users}
+              onPick={(e) => navigate(`/audits/new?planId=${e.id}&projectId=${e.projectId}&lineId=${e.lineId}&date=${e.date}`)}
+            />
+          </div>
         )}
         {view === 'Jour' && (
           <CalendarDay
@@ -128,7 +119,7 @@ export default function PlanningPage() {
       </div>
 
 
-      <PlanStats entries={planning} users={users} projects={projects} />
+      {currentUser?.role !== 'technician' && <PlanStats entries={planning} users={users} projects={projects} />}
 
       <UnplannedModal
         open={showUnplanned}
@@ -163,7 +154,7 @@ function NavBar({ view, cursor, setCursor, year }) {
         <button className="btn-secondary" onClick={() => setCursor(new Date(year, 0, 1))}>Début</button>
         <button className="btn-secondary" onClick={() => shift(1)}>›</button>
       </div>
-      <div className="font-semibold text-slate-800 capitalize">{label}</div>
+      <div className="font-semibold text-slate-900 capitalize">{label}</div>
       <div />
     </div>
   );
@@ -180,7 +171,7 @@ function PlanStats({ entries, users, projects }) {
   const pName = (id) => projects.find((p) => p.id === id)?.name || id;
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div className="card p-4">
+      <div className="card-industrial p-4">
         <h3 className="font-semibold text-slate-900 mb-3">Charge par technicien</h3>
         <div className="space-y-1">
           {[...byTech.entries()].sort((a, b) => b[1] - a[1]).map(([id, n]) => (
@@ -189,7 +180,7 @@ function PlanStats({ entries, users, projects }) {
           {byTech.size === 0 && <div className="text-sm text-slate-500">—</div>}
         </div>
       </div>
-      <div className="card p-4">
+      <div className="card-industrial p-4">
         <h3 className="font-semibold text-slate-900 mb-3">Couverture par projet</h3>
         <div className="space-y-1">
           {[...byProject.entries()].sort((a, b) => b[1] - a[1]).map(([id, n]) => (
@@ -207,8 +198,8 @@ function Row({ label, value, max }) {
   return (
     <div className="flex items-center gap-3 text-xs">
       <div className="w-28 truncate text-slate-600">{label}</div>
-      <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
-        <div className="h-full bg-brand-500" style={{ width: `${pct}%` }} />
+      <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
+        <div className="h-full bg-[#1f20c3]" style={{ width: `${pct}%` }} />
       </div>
       <div className="w-10 text-right font-medium text-slate-700">{value}</div>
     </div>

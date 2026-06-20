@@ -6,6 +6,8 @@ import ChecklistRenderer from '../components/audit/ChecklistRenderer';
 import Badge from '../components/common/Badge';
 import { toISO } from '../utils/dateUtils';
 
+const STEPS = ['Setup', 'Questions', 'Actions', 'Summary'];
+
 export default function NewAuditPage() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
@@ -15,33 +17,47 @@ export default function NewAuditPage() {
 
   const [projectId, setProjectId] = useState(params.get('projectId') || projects[0]?.id || '');
   const [lineId, setLineId] = useState(params.get('lineId') || '');
-  const [machineId, setMachineId] = useState('');
+  const [machineIssues, setMachineIssues] = useState({}); // { [machineId]: { nok: boolean, comment: string } }
   const [date, setDate] = useState(params.get('date') || toISO(new Date()));
   const [auditeur, setAuditeur] = useState(currentUser?.displayName || '');
   const [superviseur, setSuperviseur] = useState('');
   const [gapLeader, setGapLeader] = useState('');
   const [answers, setAnswers] = useState({});
-  const [actions, setActions] = useState([{ problem: '', action: '', resp: '', deadline: '', act: '', commentaires: '' }]);
+  const [actions, setActions] = useState([{ problem: '', action: '', resp: currentUser?.displayName || '', deadline: '', act: 'open', commentaires: '' }]);
   const [saving, setSaving] = useState(false);
   const [planId] = useState(params.get('planId') || null);
+  const [step, setStep] = useState(0);
 
   const project = projects.find((p) => p.id === projectId);
   const line = project?.lines.find((l) => l.id === lineId);
-  const machine = line?.machines.find((m) => m.id === machineId);
 
   useEffect(() => {
     if (project && !line) setLineId(project.lines[0]?.id || '');
   }, [projectId]);
 
-  useEffect(() => {
-    if (line && !machine) setMachineId(line.machines[0]?.id || '');
-  }, [lineId]);
-
-  const score = useMemo(() => auditService.computeScore(checklist, answers), [checklist, answers]);
+  const score = useMemo(() => auditService.computeScore(checklist, answers, line?.machines?.length || 0), [checklist, answers, line]);
 
   const submit = async () => {
     if (!projectId || !lineId) { alert('Sélectionnez un projet et une ligne'); return; }
     setSaving(true);
+
+    const nokMachineIds = new Set();
+    Object.values(answers).forEach(ans => {
+      if (ans?.nokMachines) {
+        ans.nokMachines.forEach(id => nokMachineIds.add(id));
+      }
+    });
+
+    const formattedMachineIssues = line.machines.map(m => {
+      const isNok = nokMachineIds.has(m.id);
+      return {
+        machineId: m.id,
+        machineCode: m.code,
+        status: isNok ? 'nok' : 'ok',
+        comment: '' 
+      };
+    });
+
     try {
       await createAudit({
         planId,
@@ -50,8 +66,7 @@ export default function NewAuditPage() {
         projectName: project?.name,
         lineId,
         lineName: line?.name,
-        machineId,
-        machineCode: machine?.code,
+        machineIssues: formattedMachineIssues,
         technicianId: currentUser?.id,
         auditeur,
         superviseur,
@@ -67,58 +82,83 @@ export default function NewAuditPage() {
     } finally { setSaving(false); }
   };
 
-  if (!checklist) return <div className="text-sm text-slate-500">Chargement de la check-list…</div>;
+  if (!checklist) return <div className="text-sm text-slate-500">Chargement de la check-list...</div>;
 
   return (
-    <div className="space-y-5 max-w-5xl">
-      <div className="card p-5">
+    <div className="space-y-5 max-w-5xl pb-10">
+      <div className="card-industrial p-5">
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-semibold text-slate-900">{checklist.title}</h2>
           <Badge variant={score >= 80 ? 'success' : score >= 60 ? 'warn' : 'danger'}>
             Score : {score}%
           </Badge>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <div><label className="label">Date</label>
-            <input type="date" className="input" value={date} onChange={(e) => setDate(e.target.value)} /></div>
-          <div><label className="label">UAP (Projet)</label>
-            <select className="input" value={projectId} onChange={(e) => setProjectId(e.target.value)}>
-              {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-            </select></div>
-          <div><label className="label">Ligne</label>
-            <select className="input" value={lineId} onChange={(e) => setLineId(e.target.value)}>
-              {project?.lines.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
-            </select></div>
-          <div><label className="label">N° Machine</label>
-            <select className="input" value={machineId} onChange={(e) => setMachineId(e.target.value)}>
-              <option value="">—</option>
-              {line?.machines.map((m) => <option key={m.id} value={m.id}>{m.code}</option>)}
-            </select></div>
-          <div><label className="label">Auditeur</label>
-            <input className="input" value={auditeur} onChange={(e) => setAuditeur(e.target.value)} /></div>
-          <div><label className="label">Superviseur</label>
-            <input className="input" value={superviseur} onChange={(e) => setSuperviseur(e.target.value)} /></div>
-          <div><label className="label">Gap Leader</label>
-            <input className="input" value={gapLeader} onChange={(e) => setGapLeader(e.target.value)} /></div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+          {STEPS.map((label, index) => (
+            <button
+              key={label}
+              type="button"
+              onClick={() => setStep(index)}
+              className={`rounded-[8px] border px-2 sm:px-3 py-2 text-[10px] sm:text-xs font-black uppercase tracking-[0.11em] sm:tracking-[0.13em] transition-all ${
+                step === index
+                  ? 'bg-[#eef0ff] border-[#5759e0] text-[#1f20c3]'
+                  : 'bg-white border-slate-200 text-slate-600 hover:bg-[#f6f7ff]'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
         </div>
       </div>
 
-      <div>
-        <h3 className="font-semibold text-slate-900 mb-3">Points à vérifier</h3>
-        <ChecklistRenderer checklist={checklist} answers={answers} onChange={setAnswers} />
-      </div>
+      {step === 0 && (
+        <div className="card-industrial p-5">
+          <h3 className="text-sm font-bold uppercase tracking-[0.14em] text-slate-800 mb-4">Setup</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div><label className="label">Date</label>
+              <input type="date" className="input" value={date} onChange={(e) => setDate(e.target.value)} /></div>
+            <div><label className="label">UAP (Projet)</label>
+              <select className="input" value={projectId} onChange={(e) => setProjectId(e.target.value)}>
+                {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+              </select></div>
+            <div><label className="label">Ligne</label>
+              <select className="input" value={lineId} onChange={(e) => setLineId(e.target.value)}>
+                {project?.lines.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
+              </select></div>
+            <div><label className="label">Auditeur</label>
+              <input className="input" value={auditeur} onChange={(e) => setAuditeur(e.target.value)} /></div>
+            <div><label className="label">Superviseur</label>
+              <input className="input" value={superviseur} onChange={(e) => setSuperviseur(e.target.value)} /></div>
+            <div><label className="label">Gap Leader</label>
+              <input className="input" value={gapLeader} onChange={(e) => setGapLeader(e.target.value)} /></div>
+          </div>
+        </div>
+      )}
 
-      <div className="card p-5">
+      {step === 1 && (
+        <div>
+          <h3 className="font-semibold text-slate-800 mb-3">Questions</h3>
+          <ChecklistRenderer
+            checklist={checklist}
+            answers={answers}
+            onChange={setAnswers}
+            machines={line?.machines || []}
+          />
+        </div>
+      )}
+
+      {step === 2 && (
+      <div className="card-industrial p-5">
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-semibold text-slate-900">Actions correctives</h3>
-          <button className="btn-secondary" onClick={() => setActions([...actions, { problem: '', action: '', resp: '', deadline: '', act: '', commentaires: '' }])}>
+          <button className="btn-secondary" onClick={() => setActions([...actions, { problem: '', action: '', resp: currentUser?.displayName || '', deadline: '', act: 'open', commentaires: '' }])}>
             + Ajouter
           </button>
         </div>
         <div className="space-y-3">
           {actions.map((a, i) => (
-            <div key={i} className="grid grid-cols-1 md:grid-cols-6 gap-2">
-              <input className="input md:col-span-2" placeholder="Problème" value={a.problem} onChange={(e) => setActions(actions.map((x, idx) => idx === i ? { ...x, problem: e.target.value } : x))} />
+            <div key={i} className="grid grid-cols-1 md:grid-cols-6 gap-2 border-b border-slate-200 pb-3 last:border-0 last:pb-0">
+              <input className="input md:col-span-2" placeholder="Probleme" value={a.problem} onChange={(e) => setActions(actions.map((x, idx) => idx === i ? { ...x, problem: e.target.value } : x))} />
               <input className="input md:col-span-2" placeholder="Action" value={a.action} onChange={(e) => setActions(actions.map((x, idx) => idx === i ? { ...x, action: e.target.value } : x))} />
               <input className="input" placeholder="Resp." value={a.resp} onChange={(e) => setActions(actions.map((x, idx) => idx === i ? { ...x, resp: e.target.value } : x))} />
               <input type="date" className="input" value={a.deadline} onChange={(e) => setActions(actions.map((x, idx) => idx === i ? { ...x, deadline: e.target.value } : x))} />
@@ -126,13 +166,40 @@ export default function NewAuditPage() {
           ))}
         </div>
       </div>
+      )}
 
-      <div className="flex justify-end gap-2">
+      {step === 3 && (
+        <div className="card-industrial p-5 space-y-3">
+          <h3 className="font-semibold text-slate-900">Summary</h3>
+          <div className="grid md:grid-cols-4 gap-3 text-sm">
+            <SummaryItem label="Projet" value={project?.name || '-'} />
+            <SummaryItem label="Ligne" value={line?.name || '-'} />
+            <SummaryItem label="Auditeur" value={auditeur || '-'} />
+            <SummaryItem label="Score" value={`${score}%`} />
+          </div>
+          <div className="text-xs text-slate-500">
+            Verifiez les donnees puis validez l'audit.
+          </div>
+        </div>
+      )}
+
+      <div className="flex flex-wrap justify-end gap-2">
         <button className="btn-secondary" onClick={() => navigate(-1)}>Annuler</button>
-        <button className="btn-primary" onClick={submit} disabled={saving}>
-          {saving ? 'Enregistrement…' : 'Enregistrer l\'audit'}
+        {step > 0 && <button className="btn-secondary" onClick={() => setStep(step - 1)}>Etape precedente</button>}
+        {step < STEPS.length - 1 && <button className="btn-primary" onClick={() => setStep(step + 1)}>Etape suivante</button>}
+        <button className="btn-primary px-8" onClick={submit} disabled={saving}>
+          {saving ? 'Enregistrement...' : 'Enregistrer l\'audit'}
         </button>
       </div>
+    </div>
+  );
+}
+
+function SummaryItem({ label, value }) {
+  return (
+    <div className="rounded-[8px] border border-slate-200 bg-slate-50 p-3">
+      <div className="text-[10px] uppercase tracking-[0.14em] text-slate-400 font-black">{label}</div>
+      <div className="mt-1 text-sm text-slate-800 font-semibold">{value}</div>
     </div>
   );
 }

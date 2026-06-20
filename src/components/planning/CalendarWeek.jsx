@@ -22,7 +22,7 @@ export default function CalendarWeek({ weekStart, entries, projects, users, onPi
   }, [entries]);
 
   return (
-    <div className="grid grid-cols-7 gap-2">
+    <div className="grid grid-cols-7 gap-2 min-w-[760px]">
       {days.map((d, i) => {
         const iso = toISO(d);
         const list = byDay.get(iso) || [];

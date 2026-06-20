@@ -32,8 +32,12 @@ export const projectService = {
       const idx = prev.findIndex((p) => p.id === project.id);
       if (idx === -1) return [...prev, project];
       const next = prev.slice();
-      next[idx] = project;
+      next[idx] = { ...next[idx], ...project };
       return next;
     });
+  },
+
+  async removeProject(id) {
+    return dataClient.patch('projects', (prev) => prev.filter((p) => p.id !== id));
   },
 };
