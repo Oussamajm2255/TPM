@@ -79,15 +79,12 @@ export const actionService = {
 
   // Update a single action's status inside its parent audit
   async updateStatus(auditId, actionIdx, newStatus) {
-    return dataClient.patch('audits', (prev) =>
-      prev.map(a => {
-        if (a.id !== auditId) return a;
-        const actions = [...(a.actions || [])];
-        if (actions[actionIdx]) {
-          actions[actionIdx] = { ...actions[actionIdx], act: newStatus };
-        }
-        return { ...a, actions };
-      })
-    );
+    const res = await fetch(`/api/audits/${auditId}/actions/${actionIdx}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: newStatus }),
+    });
+    if (!res.ok) throw new Error('API error');
+    return res.json();
   },
 };
