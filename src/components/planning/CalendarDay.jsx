@@ -1,7 +1,7 @@
 import Badge from '../common/Badge';
 import { toISO } from '../../utils/dateUtils';
 
-export default function CalendarDay({ dateISO, entries, projects, users, onPick }) {
+export default function CalendarDay({ dateISO, entries, projects, users, onPick, onRemove }) {
   const pMap = new Map(projects.map((p) => [p.id, p]));
   const lineMap = new Map();
   for (const p of projects) for (const l of p.lines) lineMap.set(l.id, l);
