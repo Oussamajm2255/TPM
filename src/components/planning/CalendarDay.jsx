@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import Badge from '../common/Badge';
 import { toISO } from '../../utils/dateUtils';
 
@@ -40,12 +41,21 @@ export default function CalendarDay({ dateISO, entries, projects, users, onPick,
                 <td className="td" onClick={() => onPick?.(e)}><Badge variant={tone}>{label}</Badge></td>
                 <td className="td text-right whitespace-nowrap">
                   <div className="flex items-center justify-end gap-3">
-                    <button 
-                      className={`text-xs font-medium hover:underline ${isDone ? 'text-emerald-600' : 'text-brand-700'}`}
-                      onClick={() => onPick?.(e)}
-                    >
-                      {isDone ? 'Rapport' : 'Ouvrir →'}
-                    </button>
+                    {isDone ? (
+                      <Link
+                        to={`/audits?auditId=${e.id}`}
+                        className="text-emerald-600 text-xs font-medium hover:underline"
+                      >
+                        Rapport
+                      </Link>
+                    ) : (
+                      <button 
+                        className="text-brand-700 text-xs font-medium hover:underline"
+                        onClick={() => onPick?.(e)}
+                      >
+                        Ouvrir →
+                      </button>
+                    )}
                     {onRemove && e.status !== 'done' && (
                       <button 
                         className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded transition-colors"
