@@ -1,10 +1,12 @@
 import Badge from '../common/Badge';
+import { toISO } from '../../utils/dateUtils';
 
 export default function CalendarDay({ dateISO, entries, projects, users, onPick }) {
   const pMap = new Map(projects.map((p) => [p.id, p]));
   const lineMap = new Map();
   for (const p of projects) for (const l of p.lines) lineMap.set(l.id, l);
   const uMap = new Map(users.map((u) => [u.id, u]));
+  const today = toISO(new Date());
 
   if (entries.length === 0) {
     return <div className="card p-8 text-center text-slate-500">Aucun audit planifié pour {dateISO}.</div>;
@@ -25,10 +27,13 @@ export default function CalendarDay({ dateISO, entries, projects, users, onPick 
             const u = uMap.get(e.technicianId);
             const p = pMap.get(e.projectId);
             const l = lineMap.get(e.lineId);
-            const tone = e.status === 'done' ? 'success' : e.unplanned ? 'warn' : 'brand';
-            const label = e.status === 'done' ? 'Fait' : e.unplanned ? 'Urgent' : 'Planifié';
+            const isDone = e.status === 'done';
+            const isOverdue = !isDone && e.date < today;
+            const tone = isDone ? 'success' : isOverdue ? 'danger' : 'neutral';
+            const label = isDone ? 'Fait' : isOverdue ? 'En retard' : e.unplanned ? 'Urgent' : 'Planifié';
+            const rowBg = isDone ? '' : isOverdue ? 'bg-rose-50/40' : '';
             return (
-              <tr key={e.id} className="hover:bg-slate-50 group">
+              <tr key={e.id} className={`hover:bg-slate-50 group ${rowBg}`}>
                 <td className="td font-medium" onClick={() => onPick?.(e)}>{u?.displayName || e.technicianId}</td>
                 <td className="td" onClick={() => onPick?.(e)}>{p?.name || e.projectId}</td>
                 <td className="td" onClick={() => onPick?.(e)}>{l?.name || e.lineId}</td>

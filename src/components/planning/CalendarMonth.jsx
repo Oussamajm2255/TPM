@@ -15,12 +15,15 @@ export default function CalendarMonth({ year, month, entries, onSelectDay }) {
 
   const byDay = useMemo(() => {
     const m = new Map();
+    const today = toISO(new Date());
     for (const e of entries) {
       if (!m.has(e.date)) m.set(e.date, []);
       m.get(e.date).push(e);
     }
     return m;
   }, [entries]);
+
+  const todayISO = toISO(new Date());
 
   return (
     <div className="overflow-x-auto">
@@ -48,13 +51,16 @@ export default function CalendarMonth({ year, month, entries, onSelectDay }) {
                 )}
               </div>
               <div className="mt-1 space-y-0.5">
-                {list.slice(0, 3).map((e) => (
-                  <div key={e.id} className={`text-[10px] truncate rounded px-1 py-0.5 ${
-                    e.unplanned ? 'bg-amber-100 text-amber-800' : e.status === 'done' ? 'bg-emerald-100 text-emerald-800' : 'bg-brand-100 text-brand-800'
-                  }`}>
+                {list.slice(0, 3).map((e) => {
+                    const isDone = e.status === 'done';
+                    const isOverdue = !isDone && e.date < todayISO;
+                    const cls = isDone ? 'bg-emerald-100 text-emerald-800' : isOverdue ? 'bg-rose-100 text-rose-800' : 'bg-slate-200 text-slate-700';
+                    return (
+                    <div key={e.id} className={`text-[10px] truncate rounded px-1 py-0.5 ${cls}`}>
                     {e.display || '•'}
                   </div>
-                ))}
+                    );
+                  })}
                 {list.length > 3 && <div className="text-[10px] text-slate-500">+{list.length - 3} …</div>}
               </div>
             </button>

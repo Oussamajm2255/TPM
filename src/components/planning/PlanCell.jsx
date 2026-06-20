@@ -1,14 +1,24 @@
 import Badge from '../common/Badge';
+import { toISO } from '../../utils/dateUtils';
 
 export default function PlanCell({ entry, project, line, user, compact = false }) {
-  const tone = entry.status === 'done' ? 'success' : entry.unplanned ? 'warn' : 'brand';
+  const today = toISO(new Date());
+  const isDone = entry.status === 'done';
+  const isOverdue = !isDone && entry.date < today;
+
+  const tone = isDone ? 'success' : isOverdue ? 'danger' : 'neutral';
+  const borderColor = isDone ? 'border-emerald-200' : isOverdue ? 'border-rose-200' : 'border-slate-300';
+  const bgColor = isDone ? 'bg-emerald-50' : isOverdue ? 'bg-rose-50' : 'bg-slate-100';
+  const label = isDone ? 'Fait' : isOverdue ? 'En retard' : entry.unplanned ? 'Urgent' : 'Planifié';
+  const textColor = isDone ? 'text-emerald-800' : isOverdue ? 'text-rose-800' : 'text-slate-800';
+
   return (
-    <div className={`rounded-md border ${entry.unplanned ? 'border-amber-200 bg-amber-50' : 'border-brand-100 bg-brand-50'} px-2 py-1 text-[11px] leading-tight`}>
-      <div className="font-semibold text-slate-800 truncate">{user?.displayName || '—'}</div>
-      <div className="text-slate-600 truncate">{project?.name} · {line?.name}</div>
+    <div className={`rounded-md border ${borderColor} ${bgColor} px-2 py-1 text-[11px] leading-tight`}>
+      <div className={`font-semibold truncate ${textColor}`}>{user?.displayName || '—'}</div>
+      <div className={`truncate ${textColor} opacity-70`}>{project?.name} · {line?.name}</div>
       {!compact && (
         <div className="mt-1 flex gap-1">
-          <Badge variant={tone}>{entry.status === 'done' ? 'Fait' : entry.unplanned ? 'Urgent' : 'Planifié'}</Badge>
+          <Badge variant={tone}>{label}</Badge>
         </div>
       )}
     </div>
