@@ -12,8 +12,8 @@ import { MONTHS_FR, startOfWeek, toISO, fromISO } from '../utils/dateUtils';
 const VIEWS = ['Mois', 'Semaine', 'Jour'];
 
 export default function PlanningPage() {
-  const { projects, users, planning, settings, currentUser } = useAppStore((s) => ({
-    projects: s.projects, users: s.users, planning: s.planning, settings: s.settings, currentUser: s.currentUser,
+  const { projects, users, planning, settings, currentUser, audits } = useAppStore((s) => ({
+    projects: s.projects, users: s.users, planning: s.planning, settings: s.settings, currentUser: s.currentUser, audits: s.audits,
   }));
   const addUnplanned = useAppStore((s) => s.addUnplanned);
   const removePlanEntry = useAppStore((s) => s.removePlanEntry);
@@ -107,14 +107,29 @@ export default function PlanningPage() {
           </div>
         )}
         {view === 'Jour' && (
-          <CalendarDay
-            dateISO={toISO(cursor)}
-            entries={displayEntries.filter((e) => e.date === toISO(cursor))}
-            projects={projects}
-            users={users}
-            onPick={(e) => navigate(`/audits/new?planId=${e.id}&projectId=${e.projectId}&lineId=${e.lineId}&date=${e.date}`)}
-            onRemove={can('planning.edit') ? removePlanEntry : null}
-          />
+          <>
+            <div className="mb-3">
+              <button className="btn-secondary" onClick={() => setView(isTech ? 'Semaine' : 'Mois')}>
+                ← Retour
+              </button>
+            </div>
+            <CalendarDay
+              dateISO={toISO(cursor)}
+              entries={displayEntries.filter((e) => e.date === toISO(cursor))}
+              projects={projects}
+              users={users}
+              audits={audits}
+              onPick={(e) => {
+                if (e.status === 'done') {
+                  const doneAudit = audits.find(a => a.planId === e.id);
+                  navigate(`/audits`);
+                } else {
+                  navigate(`/audits/new?planId=${e.id}&projectId=${e.projectId}&lineId=${e.lineId}&date=${e.date}`);
+                }
+              }}
+              onRemove={can('planning.edit') ? removePlanEntry : null}
+            />
+          </>
         )}
       </div>
 

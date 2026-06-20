@@ -41,10 +41,10 @@ export default function CalendarDay({ dateISO, entries, projects, users, onPick,
                 <td className="td text-right whitespace-nowrap">
                   <div className="flex items-center justify-end gap-3">
                     <button 
-                      className="text-brand-700 text-xs font-medium hover:underline"
+                      className={`text-xs font-medium hover:underline ${isDone ? 'text-emerald-600' : 'text-brand-700'}`}
                       onClick={() => onPick?.(e)}
                     >
-                      Ouvrir →
+                      {isDone ? 'Rapport' : 'Ouvrir →'}
                     </button>
                     {onRemove && e.status !== 'done' && (
                       <button 
