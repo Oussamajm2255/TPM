@@ -121,8 +121,7 @@ export default function PlanningPage() {
               audits={audits}
               onPick={(e) => {
                 if (e.status === 'done') {
-                  const doneAudit = audits.find(a => a.planId === e.id);
-                  navigate(`/audits`);
+                  navigate(`/audits?auditId=${e.id}`);
                 } else {
                   navigate(`/audits/new?planId=${e.id}&projectId=${e.projectId}&lineId=${e.lineId}&date=${e.date}`);
                 }

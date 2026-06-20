@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useMemo, useState, useEffect } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useAppStore } from '../store/useAppStore';
 import Badge from '../components/common/Badge';
 import EmptyState from '../components/common/EmptyState';
@@ -19,6 +19,16 @@ export default function AuditsPage() {
   const [filterTech, setFilterTech] = useState('');
   const [busy, setBusy] = useState(false);
   const [selected, setSelected] = useState(null);
+  const [searchParams] = useSearchParams();
+
+  // Auto-open audit from planning ?auditId=PL1
+  useEffect(() => {
+    const planId = searchParams.get('auditId');
+    if (planId) {
+      const found = audits.find(a => a.planId === planId);
+      if (found) setSelected(found);
+    }
+  }, [searchParams, audits]);
 
   const scoped = useMemo(() => {
     let list = audits;
