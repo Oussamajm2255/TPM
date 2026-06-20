@@ -319,7 +319,7 @@ app.patch('/api/audits/:id/actions/:actionIdx', async (req, res) => {
 });
 
 // SPA fallback — serve index.html for all non-API routes
-app.get('*', (req, res) => {
+app.get('/{*splat}', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
