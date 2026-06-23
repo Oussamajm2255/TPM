@@ -1,0 +1,12 @@
+import pg from 'pg';
+const c = new pg.Client({connectionString:'postgresql://postgres:CZeSHKOIpDMpDdEvFsYXFIewCANuYrau@thomas.proxy.rlwy.net:36925/railway',ssl:{rejectUnauthorized:false}});
+await c.connect();
+const r = await c.query(`SELECT id, score, plan_id, date, project_name, line_name FROM audits ORDER BY score LIMIT 5`);
+console.log('Lowest 5:');
+r.rows.forEach(a => console.log(`  ${a.id} | ${a.score}% | ${a.date?.toString().slice(0,10)} | ${a.project_name} | ${a.line_name}`));
+const r2 = await c.query(`SELECT id, score, plan_id, date, project_name, line_name FROM audits ORDER BY score DESC LIMIT 5`);
+console.log('Highest 5:');
+r2.rows.forEach(a => console.log(`  ${a.id} | ${a.score}% | ${a.date?.toString().slice(0,10)} | ${a.project_name} | ${a.line_name}`));
+const r3 = await c.query(`SELECT round(avg(score)) as avg, percentile_cont(0.5) within group (order by score) as median, min(score) as min, max(score) as max FROM audits`);
+console.log('Stats:', r3.rows[0]);
+await c.end();

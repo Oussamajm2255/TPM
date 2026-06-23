@@ -1,0 +1,10 @@
+import pg from 'pg';
+const c = new pg.Client({connectionString:'postgresql://postgres:CZeSHKOIpDMpDdEvFsYXFIewCANuYrau@thomas.proxy.rlwy.net:36925/railway',ssl:{rejectUnauthorized:false}});
+await c.connect();
+await c.query('DELETE FROM audits');
+console.log('Audits cleared');
+await c.query("UPDATE planning SET status='scheduled' WHERE status='done'");
+console.log('Planning reset');
+const r = await c.query("SELECT count(*) FROM planning WHERE date < CURRENT_DATE AND status != 'done'");
+console.log('Overdue remaining:', r.rows[0].count);
+await c.end();

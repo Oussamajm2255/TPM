@@ -119,13 +119,14 @@ export default function DashboardPage() {
     }).sort((a, b) => b.score - a.score);
   }, [drill, projects, audits, dateRange]);
 
-  // --- Level 3: Line (Score Trend) — use effective scores
+  // --- Level 3: Line (Score Trend) — ALL audits for this line, not date-filtered
   const lineHistory = useMemo(() => {
     if (drill.level !== 'line') return [];
-    return filteredAudits
+    return audits
+      .filter(a => a.lineId === drill.id)
       .map(a => ({ date: a.date, score: auditService.computeEffectiveScore(a.score, a.actions) }))
       .sort((a, b) => a.date.localeCompare(b.date));
-  }, [drill, filteredAudits]);
+  }, [drill, audits]);
 
   // --- KPIs — use effective scores
   const kpis = useMemo(() => {

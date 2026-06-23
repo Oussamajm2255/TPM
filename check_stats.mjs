@@ -1,0 +1,10 @@
+import pg from 'pg';
+const c = new pg.Client({connectionString:'postgresql://postgres:CZeSHKOIpDMpDdEvFsYXFIewCANuYrau@thomas.proxy.rlwy.net:36925/railway',ssl:{rejectUnauthorized:false}});
+await c.connect();
+const r = await c.query(`SELECT count(*) as audits, round(avg(score),1) as avg_score, count(*) filter (where score>=80) as good, count(*) filter (where score<60) as critical FROM audits`);
+console.log('Audits:', r.rows[0]);
+const r2 = await c.query(`SELECT count(*) FROM planning WHERE status='done'`);
+console.log('Done planning:', r2.rows[0].count, '/ 1740');
+const r3 = await c.query(`SELECT count(*) FROM planning WHERE status != 'done' AND date < CURRENT_DATE`);
+console.log('Still overdue:', r3.rows[0].count);
+await c.end();
