@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Cell,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Cell, LabelList,
   LineChart, Line as ReLine, AreaChart, Area
 } from 'recharts';
 import { useAppStore } from '../store/useAppStore';
@@ -289,7 +289,7 @@ export default function DashboardPage() {
                 if (!aClosed && bClosed) return -1;
                 if (!aClosed) return (b.deadline || '').localeCompare(a.deadline || '');
                 return 0; // both closed, keep original order
-              }).slice(0, 8).map((a, i) => {
+              }).slice(0, 12).map((a, i) => {
                 const status = a.act || 'open';
                 const color = status === 'open' ? 'text-rose-500 bg-rose-50 border-rose-200' : status === 'in_progress' ? 'text-amber-600 bg-amber-50 border-amber-200' : 'text-emerald-600 bg-emerald-50 border-emerald-200';
                 const overdue = a.deadline && a.deadline < new Date().toISOString().split('T')[0];
@@ -359,13 +359,13 @@ export default function DashboardPage() {
             ) : (
               <BarChart data={drill.level === 'global' ? globalData : projectData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94A3B8', fontSize: 11}} dy={10} />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#475569', fontSize: 13, fontWeight: 600}} dy={10} angle={0} interval={0} />
                 <YAxis domain={[0, 100]} axisLine={false} tickLine={false} tick={{fill: '#94A3B8', fontSize: 11}} dx={-10} />
                 <RechartsTooltip cursor={{fill: '#eef2ff'}} content={<CustomTooltip />} />
                 <Bar 
                   dataKey="score" 
                   radius={[8, 8, 0, 0]} 
-                  barSize={40}
+                  barSize={52}
                   animationDuration={800}
                   onClick={(data) => {
                     if (drill.level === 'global') {
@@ -382,6 +382,7 @@ export default function DashboardPage() {
                       className="cursor-pointer hover:opacity-80 transition-opacity"
                     />
                   ))}
+                  <LabelList dataKey="score" position="insideTop" fill="#fff" fontSize={13} fontWeight={700} formatter={(v) => `${v}%`} />
                 </Bar>
               </BarChart>
             )}
