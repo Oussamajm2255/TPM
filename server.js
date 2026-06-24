@@ -323,7 +323,7 @@ app.patch('/api/audits/:id/actions/:actionIdx', async (req, res) => {
   }
 });
 
-// SPA fallback — serve index.html for all non-API routes
+// SPA fallback — serve index.html for all non-API routes (Express 5 wildcard syntax)
 app.get('/{*splat}', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
