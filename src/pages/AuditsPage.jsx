@@ -37,7 +37,7 @@ export default function AuditsPage() {
     }
     if (filterProject) list = list.filter((a) => a.projectId === filterProject);
     if (filterTech) list = list.filter((a) => a.technicianId === filterTech);
-    return [...list].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    return [...list].sort((a, b) => (b.date || '').localeCompare(a.date || '') || (b.createdAt || 0) - (a.createdAt || 0));
   }, [audits, filterProject, filterTech, currentUser]);
 
   const techs = users.filter((u) => u.role === 'technician');
