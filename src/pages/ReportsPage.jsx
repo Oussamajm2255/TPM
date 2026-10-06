@@ -64,7 +64,7 @@ export default function ReportsPage() {
     <div className="reports-root space-y-5 pb-10">
       <style>{PRINT_CSS}</style>
 
-      <div className="no-print card-industrial p-3 sm:p-4 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div className="no-print card-industrial sticky top-[72px] z-30 !bg-white p-3 sm:p-4 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div className="flex rounded-lg border border-slate-200 bg-slate-100 p-0.5 gap-0.5 self-start">
           {Object.entries(REPORT_TYPES).map(([k, t]) => (
             <button
