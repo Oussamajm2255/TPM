@@ -24,6 +24,7 @@ const isoWeek = (d) => {
   const y0 = new Date(Date.UTC(t.getUTCFullYear(), 0, 1));
   return Math.ceil(((t - y0) / 86400000 + 1) / 7);
 };
+const MONTHS_ABBR = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
 const fmtDay = (iso) => { const d = fromISO(iso); return `${DOW_FR_SHORT[(d.getDay() + 6) % 7]} ${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`; };
 const fmtLong = (iso) => { const d = fromISO(iso); return `${d.getDate()} ${MONTHS_FR[d.getMonth()].toLowerCase()} ${d.getFullYear()}`; };
 
@@ -36,7 +37,7 @@ export function getPeriod(type, anchorISO) {
     const s = startOfWeek(a), e = addDays(s, 6);
     return {
       from: toISO(s), to: toISO(e),
-      label: `Semaine ${isoWeek(s)} · ${s.getDate()} ${MONTHS_FR[s.getMonth()].slice(0, 3).toLowerCase()}. – ${e.getDate()} ${MONTHS_FR[e.getMonth()].slice(0, 3).toLowerCase()}. ${e.getFullYear()}`,
+      label: `Semaine ${isoWeek(s)} · ${s.getDate()} ${MONTHS_ABBR[s.getMonth()]} – ${e.getDate()} ${MONTHS_ABBR[e.getMonth()]} ${e.getFullYear()}`,
       short: `S${String(isoWeek(s)).padStart(2, '0')}-${s.getFullYear()}`,
     };
   }
@@ -161,8 +162,16 @@ export function buildReport({ type, anchorISO, todayISO, audits, planning, proje
   }
 
   // ---- Actions (current state — statuses carry no history)
+  // Deadlines may be stored as full timestamps — keep the date part, drop anything unreadable.
+  const cleanDate = (d) => { const s = String(d || '').slice(0, 10); return /^\d{4}-\d{2}-\d{2}$/.test(s) ? s : ''; };
+  // "Problem → Machines: 1, 2, 3" → readable title + machine count
+  const splitTitle = (t) => {
+    const [head, tail] = String(t || '').split(/\s*→\s*Machines?\s*:\s*/i);
+    return { title: head || '', machineCount: tail ? tail.split(',').filter((x) => x.trim()).length : 0 };
+  };
   const allActions = audits.flatMap((a) => (a.actions || []).map((act, idx) => ({
-    ...act, status: actStatus(act), auditId: a.id, idx, auditDate: a.date,
+    ...act, deadline: cleanDate(act.deadline), ...splitTitle(act.problem || act.action),
+    status: actStatus(act), auditId: a.id, idx, auditDate: a.date,
     lineName: a.lineName, projectName: a.projectName, auditeur: a.auditeur,
   })));
   const openNow = allActions.filter((a) => a.status !== 'closed');
@@ -172,7 +181,7 @@ export function buildReport({ type, anchorISO, todayISO, audits, planning, proje
   const nextEnd = type === 'monthly' ? toISO(addDays(fromISO(todayISO), 14)) : toISO(addDays(fromISO(todayISO), 7));
   const dueSoon = openNow.filter((a) => a.deadline && a.deadline >= todayISO && a.deadline <= nextEnd)
     .sort((x, y) => x.deadline.localeCompare(y.deadline));
-  const daysLate = (a) => Math.round((fromISO(todayISO) - fromISO(a.deadline)) / 86400000);
+  const daysLate = (a) => Math.max(0, Math.round((fromISO(todayISO) - fromISO(a.deadline)) / 86400000));
   const actions = {
     open: openNow.filter((a) => a.status === 'open').length,
     inProgress: openNow.filter((a) => a.status === 'in_progress').length,
@@ -216,7 +225,8 @@ export function buildReport({ type, anchorISO, todayISO, audits, planning, proje
       critical: critical.length, machinesChecked, nokMachines: nokMachines.length,
     },
     planned, trend, lines, weakLines, byProject, nokMachines: nokMachines.slice(0, 5), topFailures,
-    actions, auditList, dueToday, attention: attention.slice(0, 5),
+    actions, auditList, dueToday, attention: attention.slice(0, 4),
+    bestLines: [...lines].sort((x, y) => y.score - x.score).slice(0, 3),
     bestLine: [...lines].sort((x, y) => y.score - x.score)[0] || null,
     helpers: { fmtDay, fmtLong },
   };
