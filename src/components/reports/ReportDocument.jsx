@@ -173,6 +173,8 @@ export default function ReportDocument({ report }) {
           </Section>
         </div>
 
+        <ProjectPerformance report={report} />
+
         {/* Period-specific block */}
         {type === 'daily' && <DailyBlock report={report} />}
         {type !== 'daily' && <TrendBlock report={report} />}
@@ -277,20 +279,45 @@ function DailyBlock({ report }) {
 }
 
 function TrendBlock({ report }) {
-  const { type, trend, byProject, weakLines } = report;
+  const { type, trend, weakLines } = report;
   return (
     <div className="grid grid-cols-2 gap-5">
       <Section title={type === 'weekly' ? 'Activité par jour' : 'Tendance par semaine'} aside="audits · score">
         {trend.some((t) => t.count) ? <TrendChart data={trend} /> : <Empty>Aucune donnée sur la période</Empty>}
       </Section>
       <div className="space-y-4">
-        <Section title="Score par projet">
-          {byProject.length ? <ScoreBars rows={byProject.slice(0, 4).map((p) => ({ key: p.id, name: p.name, score: p.score }))} /> : <Empty>Aucun audit</Empty>}
-        </Section>
         <Section title="Lignes à surveiller">
-          {weakLines.length ? <ScoreBars rows={weakLines.slice(0, 3).map((l) => ({ key: l.id, name: l.line, score: l.score }))} /> : <Empty>{report.lines.length ? 'Toutes les lignes ≥ 80%' : 'Aucun audit'}</Empty>}
+          {weakLines.length ? <ScoreBars rows={weakLines.slice(0, 4).map((l) => ({ key: l.id, name: l.line, score: l.score }))} /> : <Empty>{report.lines.length ? 'Toutes les lignes ≥ 80%' : 'Aucun audit'}</Empty>}
         </Section>
       </div>
     </div>
+  );
+}
+
+function ProjectPerformance({ report }) {
+  const { byProject, type } = report;
+  return (
+    <Section title="Performance par projet" aside="score moyen · audits · actions ouvertes">
+      <div className="grid grid-cols-4 gap-3">
+        {byProject.map((p) => {
+          const t = TONE[scoreTone(p.score)];
+          const d = type === 'daily' ? null : p.delta;
+          return (
+            <div key={p.id} className="rounded-lg border border-slate-200 bg-white px-3 py-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-extrabold text-slate-800 truncate">{p.name}</span>
+                {d != null && <span className="text-[9px] font-black tabular-nums" style={{ color: d < 0 ? RED : '#047857' }}>{d > 0 ? '▲ +' : d < 0 ? '▼ ' : '= '}{d}</span>}
+              </div>
+              <div className="text-[22px] leading-none font-extrabold mt-1.5 tabular-nums" style={{ color: t.fg }}>{val(p.score, '%')}</div>
+              <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden mt-2"><div className="h-full rounded-full" style={{ width: `${p.score || 0}%`, background: t.bar }} /></div>
+              <div className="flex items-center justify-between mt-2 text-[9.5px] font-semibold text-slate-500">
+                <span><b className="text-slate-800 tabular-nums">{p.count}</b> audit{p.count > 1 ? 's' : ''}{p.critical ? <b style={{ color: RED }}> · {p.critical} crit.</b> : ''}</span>
+                <span><b className="tabular-nums" style={{ color: p.overdue ? RED : '#1e293b' }}>{p.openActions}</b> act.{p.overdue ? <b style={{ color: RED }}> ({p.overdue} ⚠)</b> : ''}</span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </Section>
   );
 }

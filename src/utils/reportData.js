@@ -127,9 +127,20 @@ export function buildReport({ type, anchorISO, todayISO, audits, planning, proje
   const lines = [...byLine.values()].map((l) => ({ ...l, score: avg(l.scores), count: l.scores.length }));
   const weakLines = lines.filter((l) => l.score < GOOD).sort((x, y) => x.score - y.score).slice(0, 4);
   const byProject = projects.map((p) => {
-    const s = inPeriod.filter((a) => a.projectId === p.id).map(eff);
-    return { id: p.id, name: p.name, score: avg(s), count: s.length };
-  }).filter((p) => p.count).sort((x, y) => y.score - x.score);
+    const mine = inPeriod.filter((a) => a.projectId === p.id);
+    const s = mine.map(eff);
+    const score = avg(s);
+    const prevScore = avg(inPrev.filter((a) => a.projectId === p.id).map(eff));
+    const open = audits.filter((a) => a.projectId === p.id)
+      .flatMap((a) => a.actions || []).filter((x) => actStatus(x) !== 'closed');
+    return {
+      id: p.id, name: p.name, score, count: s.length,
+      delta: score != null && prevScore != null ? score - prevScore : null,
+      critical: s.filter((x) => x < CRITICAL).length,
+      openActions: open.length,
+      overdue: open.filter((x) => x.deadline && x.deadline < todayISO).length,
+    };
+  }).sort((x, y) => (y.score ?? -1) - (x.score ?? -1));
 
   // ---- Activity buckets (days for weekly / weeks for monthly) → trend
   let trend = [];
