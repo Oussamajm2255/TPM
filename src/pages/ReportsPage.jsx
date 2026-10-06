@@ -8,6 +8,10 @@ import { toISO } from '../utils/dateUtils';
 const SHEET_W = 794; // A4 @ 96dpi
 
 // Hides the app chrome and prints only the sheet on A4 (user picks "Save as PDF").
+// <main> is overflow-auto (but not height-bound, so the page itself scrolls): a sticky toolbar only works
+// if <main> is not the scroll container, so release it while this page is mounted.
+const STICKY_CSS = `main:has(.reports-root) { overflow: visible; }`;
+
 const PRINT_CSS = `
 @page { size: A4; margin: 0; }
 @media print {
@@ -62,7 +66,7 @@ export default function ReportsPage() {
 
   return (
     <div className="reports-root space-y-5 pb-10">
-      <style>{PRINT_CSS}</style>
+      <style>{STICKY_CSS + PRINT_CSS}</style>
 
       <div className="no-print card-industrial sticky top-[72px] z-30 !bg-white p-3 sm:p-4 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div className="flex rounded-lg border border-slate-200 bg-slate-100 p-0.5 gap-0.5 self-start">
