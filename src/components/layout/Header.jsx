@@ -11,6 +11,7 @@ const TITLES = {
   '/planning': 'Planning des audits',
   '/audits':   'Audits',
   '/audits/new': 'Nouvel audit',
+  '/reports':  'Rapports',
   '/projects': 'Projets & Lignes',
   '/users':    'Utilisateurs',
 };

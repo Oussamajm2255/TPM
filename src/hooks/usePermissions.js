@@ -13,6 +13,7 @@ const MATRIX = {
   'planning.generate':       ['admin', 'manager'],
   'planning.unplanned':      ['admin', 'manager'],
   'planning.edit':           ['admin', 'manager'],
+  'reports.view':            ['admin', 'manager'],
   'users.view':              ['admin'],
   'users.manage':            ['admin'],
   'actions.view':            ['admin', 'manager', 'technician'],

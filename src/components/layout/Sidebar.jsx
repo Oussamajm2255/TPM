@@ -5,7 +5,8 @@ import {
   Calendar, 
   ClipboardCheck, 
   Settings, 
-  Users
+  Users,
+  FileText
 } from 'lucide-react';
 import { usePermissions } from '../../hooks/usePermissions';
 
@@ -17,6 +18,7 @@ export default function Sidebar() {
     { to: '/tasks', label: 'Mes tâches', icon: ClipboardList },
     { to: '/planning', label: 'Planning', icon: Calendar },
     { to: '/audits', label: 'Audits', icon: ClipboardCheck },
+    { to: '/reports', label: 'Rapports', icon: FileText, permission: 'reports.view' },
     { to: '/projects', label: 'Projets', icon: Settings, permission: 'projects.manage' },
     { to: '/users', label: 'Utilisateurs', icon: Users, permission: 'users.manage' },
   ];
@@ -36,7 +38,7 @@ export default function Sidebar() {
           <div className="md:hidden h-10 w-10 rounded-xl bg-[#f6f7ff] border border-[#d8dcff] grid place-items-center">
             <img src="/assets/Images/logo-global.png" alt="FORVIA" className="w-6 h-6 object-contain" />
           </div>
-          <nav className="flex-1 grid grid-cols-4 md:grid-cols-6 gap-1">
+          <nav className="flex-1 grid grid-cols-4 md:grid-flow-col md:auto-cols-fr gap-1">
             {navs.map((n) => {
               if (n.permission && !can(n.permission)) return null;
               return (

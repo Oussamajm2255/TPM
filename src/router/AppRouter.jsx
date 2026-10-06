@@ -8,6 +8,7 @@ import AuditsPage from '../pages/AuditsPage';
 import NewAuditPage from '../pages/NewAuditPage';
 import PlanningPage from '../pages/PlanningPage';
 import TasksPage from '../pages/TasksPage';
+import ReportsPage from '../pages/ReportsPage';
 import UsersPage from '../pages/UsersPage';
 import { usePermissions } from '../hooks/usePermissions';
 
@@ -37,6 +38,7 @@ export default function AppRouter() {
         <Route path="audits" element={<Guard action="audits.view"><AuditsPage /></Guard>} />
         <Route path="audits/new" element={<Guard action="audits.create"><NewAuditPage /></Guard>} />
         <Route path="planning" element={<Guard action="planning.view"><PlanningPage /></Guard>} />
+        <Route path="reports" element={<Guard action="reports.view"><ReportsPage /></Guard>} />
         <Route path="users" element={<Guard action="users.view"><UsersPage /></Guard>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
